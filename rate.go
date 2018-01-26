@@ -12,17 +12,19 @@ import (
 // granted are steadily increased until a steady throughput equilibrium is
 // reached.
 type RateLimiter struct {
-	limit    int
-	interval time.Duration
-	mtx      sync.Mutex
-	times    list.List
+	limit           int
+	interval        time.Duration
+	mtx             sync.Mutex
+	times           list.List
+	concurrentUsage bool
 }
 
 // New creates a new rate limiter for the limit and interval.
-func New(limit int, interval time.Duration) *RateLimiter {
+func New(limit int, interval time.Duration, concUse bool) *RateLimiter {
 	lim := &RateLimiter{
-		limit:    limit,
-		interval: interval,
+		limit:           limit,
+		interval:        interval,
+		concurrentUsage: concUse,
 	}
 	lim.times.Init()
 	return lim
@@ -44,8 +46,10 @@ func (r *RateLimiter) Wait() {
 // Try returns true if under the rate limit, or false if over and the
 // remaining time before the rate limit expires.
 func (r *RateLimiter) Try() (ok bool, remaining time.Duration) {
-	r.mtx.Lock()
-	defer r.mtx.Unlock()
+	if r.concurrentUsage {
+		r.mtx.Lock()
+		defer r.mtx.Unlock()
+	}
 	now := time.Now()
 	if l := r.times.Len(); l < r.limit {
 		r.times.PushBack(now)
