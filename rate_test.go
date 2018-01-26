@@ -9,7 +9,7 @@ func TestRateLimiter_Wait_noblock(t *testing.T) {
 	start := time.Now()
 	limit := 5
 	interval := time.Second * 3
-	limiter := New(limit, interval)
+	limiter := New(limit, interval, true)
 	for i := 0; i < limit; i++ {
 		limiter.Wait()
 	}
@@ -22,7 +22,7 @@ func TestRateLimiter_Wait_block(t *testing.T) {
 	start := time.Now()
 	limit := 5
 	interval := time.Second * 3
-	limiter := New(limit, interval)
+	limiter := New(limit, interval, true)
 	for i := 0; i < limit+1; i++ {
 		limiter.Wait()
 	}
@@ -34,7 +34,7 @@ func TestRateLimiter_Wait_block(t *testing.T) {
 func TestRateLimiter_Try(t *testing.T) {
 	limit := 5
 	interval := time.Second * 3
-	limiter := New(limit, interval)
+	limiter := New(limit, interval, true)
 	for i := 0; i < limit; i++ {
 		if ok, _ := limiter.Try(); !ok {
 			t.Fatalf("Should have allowed try on attempt %d", i)

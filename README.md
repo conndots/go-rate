@@ -41,7 +41,7 @@ import (
 )
 
 func main() {
-	rl := rate.New(3, time.Second) // 3 times per second
+	rl := rate.New(3, time.Second, true) // 3 times per second, concurrent usage
 	begin := time.Now()
 	for i := 1; i <= 10; i++ {
 		rl.Wait()
@@ -78,8 +78,8 @@ import (
 
 func main() {
 	begin := time.Now()
-	rl1 := rate.New(1, time.Second)   // Once per second
-	rl2 := rate.New(2, time.Second*3) // 2 times per 3 seconds
+	rl1 := rate.New(1, time.Second, true)   // Once per second
+	rl2 := rate.New(2, time.Second*3, true) // 2 times per 3 seconds
 	for i := 1; i <= 10; i++ {
 		rl1.Wait()
 		rl2.Wait()
@@ -114,7 +114,7 @@ import (
 	"github.com/beefsack/go-rate"
 )
 
-var rl = rate.New(3, time.Second) // 3 times per second
+var rl = rate.New(3, time.Second, true) // 3 times per second
 
 func say(message string) {
 	if ok, remaining := rl.Try(); ok {
